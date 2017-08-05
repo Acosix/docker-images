@@ -9,6 +9,8 @@ LABEL vendor="Acosix GmbH" \
 
 EXPOSE 80 443
 
+VOLUME ["/srv/apache2/ssl"]
+
 COPY docker-and-portus.host.conf docker-and-portus.host.ssl.conf /tmp/
 
 RUN	mv /tmp/docker-and-portus.host.conf /etc/apache2/sites-available/host.conf \

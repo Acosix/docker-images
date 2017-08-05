@@ -85,6 +85,10 @@ then
 
 	if [[ $ENABLE_SSL == true && ! -f "/etc/apache2/sites-enabled/${PUBLIC_HOST}.ssl.conf" ]]
 	then
+		# if new volume was mounted to /srv/apache2/ssl then we need to make sure folders exist before interacting with them
+		mkdir -p /srv/apache2/ssl/certs
+		mkdir -p /srv/apache2/ssl/letsencrypt
+
 		# we use / store SSL keys on volume to avoid re-issueing certificate too often (Let's Encrypt has limit of 20 certificates per week)
 		if [[ -f '/srv/apache2/ssl/certs/dhparam.pem' ]]
 		then
@@ -149,8 +153,6 @@ then
 			certbot --apache --agree-tos -n -m ${LETSENCRYPT_MAIL} -d ${PUBLIC_HOST} certonly
 			/usr/sbin/apache2ctl -k stop
 
-			mkdir -p /srv/apache2/ssl/letsencrypt
-			mkdir -p /srv/apache2/ssl/certs
 			rm -f /srv/apache2/ssl/letsencrypt/*.json /srv/apache2/ssl/letsencrypt/*.conf
 			
 			LE_ACCOUNT_ID=$(grep account /etc/letsencrypt/renewal/${PUBLIC_HOST}.conf | sed -r 's/account = (.+)/\1/')

@@ -4,12 +4,13 @@ LABEL vendor="Acosix GmbH" \
 	  de.acosix.version="0.0.1-SNAPSHOT" \
 	  de.acosix.is-beta="" \
 	  de.acosix.is-production="" \
-	  de.acosix.release-date="2017-08-04" \
+	  de.acosix.release-date="2017-08-05" \
 	  de.acosix.maintainer="axel.faust@acosix.de"
 
 EXPOSE 80 443
 
-# we expect file mounts for /etc/apache2/sites-available/host.conf and /etc/apache2/sites-available/host.ssl.conf 
+# if derived images don't add /etc/apache2/sites-available/host.conf and /etc/apache2/sites-available/host.ssl.conf
+# then we also expect file mounhts to those files (as host.conf.sample and host.ssl.conf.sample)
 VOLUME ["/srv/apache2/ssl"]
 
 RUN export DEBIAN_FRONTEND=noninteractive \

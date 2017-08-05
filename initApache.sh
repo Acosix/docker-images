@@ -25,12 +25,24 @@ then
 
 	if [ ! -f "/etc/apache2/sites-available/${PUBLIC_HOST}.conf" ]
 	then
-		mv /etc/apache2/sites-available/host.conf /etc/apache2/sites-available/${PUBLIC_HOST}.conf
+		if [ -f /etc/apache2/sites-available/host.conf ]
+		then
+			mv /etc/apache2/sites-available/host.conf /etc/apache2/sites-available/${PUBLIC_HOST}.conf
+		elif [ -f /etc/apache2/sites-available/host.conf.sample ]
+		then
+			cp /etc/apache2/sites-available/host.conf.sample /etc/apache2/sites-available/${PUBLIC_HOST}.conf
+		fi
 	fi
 
 	if [ ! -f "/etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf" ]
 	then
-		mv /etc/apache2/sites-available/host.ssl.conf /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
+		if [ -f /etc/apache2/sites-available/host.ssl.conf ]
+		then
+			mv /etc/apache2/sites-available/host.ssl.conf /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
+		elif [ -f /etc/apache2/sites-available/host.ssl.conf.sample ]
+		then
+			cp /etc/apache2/sites-available/host.ssl.conf.sample /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
+		fi
 	fi
 
 	if [ -f "/etc/apache2/sites-available/${PUBLIC_HOST}.conf" ]

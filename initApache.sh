@@ -114,15 +114,21 @@ then
 		LE_ACCOUNT_API=''
 		for keyFile in /srv/apache2/ssl/certs/privkey*.pem
 		do
-			KEY_NUMBER=$(echo "${keyFile}" | sed -r 's/^.+\/privkey([0-9]+)\.pem$/\1/')
-			echo "Checking externally stored Let's Encrypt key files with number ${KEY_NUMBER}"
-
-			if [[ "${KEY_NUMBER}" -gt "${MOST_RECENT_KEY_NUMBER}" ]]
+			if [[ ${keyFile} != '/srv/apache2/ssl/certs/privkey*.pem' ]]
 			then
-				if [[ -f "/srv/apache2/ssl/certs/fullchain${KEY_NUMBER}.pem" && -f "/srv/apache2/ssl/certs/chain${KEY_NUMBER}.pem" && -f "/srv/apache2/ssl/certs/cert${KEY_NUMBER}.pem" ]]
+				KEY_NUMBER=$(echo "${keyFile}" | sed -r 's/^.+\/privkey([0-9]*)\.pem$/\1/')
+				if [ -n ${KEY_NUMBER} ]
 				then
-					echo "Externally stored Let's Encrypt key files with number ${KEY_NUMBER} form a complete set of cert, cert chains and private key"
-					MOST_RECENT_KEY_NUMBER=$KEY_NUMBER
+					echo "Checking externally stored Let's Encrypt key files with number ${KEY_NUMBER}"
+
+					if [[ "${KEY_NUMBER}" -gt "${MOST_RECENT_KEY_NUMBER}" ]]
+					then
+						if [[ -f "/srv/apache2/ssl/certs/fullchain${KEY_NUMBER}.pem" && -f "/srv/apache2/ssl/certs/chain${KEY_NUMBER}.pem" && -f "/srv/apache2/ssl/certs/cert${KEY_NUMBER}.pem" ]]
+						then
+							echo "Externally stored Let's Encrypt key files with number ${KEY_NUMBER} form a complete set of cert, cert chains and private key"
+							MOST_RECENT_KEY_NUMBER=$KEY_NUMBER
+						fi
+					fi
 				fi
 			fi
 		done

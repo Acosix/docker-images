@@ -1,0 +1,41 @@
+<IfModule mod_ssl.c>
+	<VirtualHost _default_:443>
+		ServerName %HOST%
+		ServerAdmin %WEBMASTER_ADDRESS%
+
+		DocumentRoot /var/www/%HOST%/html
+
+		ErrorLog ${APACHE_LOG_DIR}/error.ssl.log
+		CustomLog ${APACHE_LOG_DIR}/access.ssl.log combined
+
+		SSLEngine on
+		SSLCompression Off
+
+		SSLCertificateFile      /etc/letsencrypt/live/%HOST%/fullchain.pem
+		SSLCertificateKeyFile /etc/letsencrypt/live/%HOST%/privkey.pem
+
+		Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains;"
+
+		RewriteEngine On
+		
+		RewriteCond 	%{REQUEST_METHOD}	^GET$
+		RewriteRule 	^/$ https://%{HTTP_HOST}/portus/	[R=301,L]
+
+		ProxyPreserveHost On
+
+		RequestHeader set X-Forwarded-Proto "https"
+
+		ProxyPass "/portus" "http://%PORTUS_HOST%:%PORTUS_PORT%/portus/"
+		ProxyPassReverse "/portus" "http://%PORTUS_HOST%:%PORTUS_PORT%/portus/"
+
+		ProxyPass "/v2" "http://%REGISTRY_HOST%:%REGISTRY_PORT%/v2"
+		ProxyPassReverse "/v2" "http://%REGISTRY_HOST%:%REGISTRY_PORT%/v2"
+
+		<Location /v2>
+			Require all granted
+
+			Header always set "Docker-Distribution-Api-Version" "registry/2.0"
+			Header onsuccess set "Docker-Distribution-Api-Version" "registry/2.0"
+		</Location>
+	</VirtualHost>
+</IfModule>

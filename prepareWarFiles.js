@@ -230,7 +230,7 @@ function tryDownload(url, user, password)
 
 function determineSnapshotVersion(baseUrl, repositoryDescriptor)
 {
-	var metadataFile, metadata, matches, timestamp, buildNumber;
+	var metadataFile, metadata, matches, timestamp, buildNumber, snapshotVersion, metadataAltFile;
 
 	try
 	{
@@ -246,19 +246,34 @@ function determineSnapshotVersion(baseUrl, repositoryDescriptor)
 			if (matches)
 			{
 				buildNumber = matches[1];
-				return timestamp + '-' + buildNumber;
+				snapshotVersion = timestamp + '-' + buildNumber;
 			}
 		}
 
-		metadataFile.delete();
+		if (!metadataFile.delete())
+		{
+			print('maven-metadata.xml could not be cleaned up - renaming to avoid re-use for other snapshot version determinations');
+
+			metadataAltFile = new java.io.File(metadataFile.parent, java.util.UUID.randomUUID().toString() + '.xml');
+			metadataFile.renameTo(metadataAltFile);
+			metadataAltFile.deleteOnExit();
+		}
 	}
 	catch(e)
 	{
 		if (metadataFile !== undefined)
 		{
-			metadataFile.delete();
+			if (!metadataFile.delete())
+			{
+				print('maven-metadata.xml could not be cleaned up - renaming to avoid re-use for other snapshot version determinations');
+
+				metadataAltFile = new java.io.File(metadataFile.parent, java.util.UUID.randomUUID().toString() + '.xml');
+				metadataFile.renameTo(metadataAltFile);
+				metadataAltFile.deleteOnExit();
+			}
 		}
 	}
+	return snapshotVersion;
 }
 
 function downloadArtifact(artifactDescriptor, repositoryDescriptors)

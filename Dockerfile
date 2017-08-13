@@ -22,12 +22,17 @@ ENV MAVEN_REQUIRED_ARTIFACTS= \
 	MAVEN_REPOSITORIES_ossrh_URL=https://oss.sonatype.org/content/repositories/snapshots \
 	JMX_RMI_PORT=5001
 
-EXPOSE 8080 8081 8082 8083 5001
+# Public HTTP ports for reverse-proxy: 8080 / 8081 (assumed secured via SSL)
+# Private HTTP ports for SOLR: 8082 / 8083 (active SSL)
+# JMX / RMI port: 5001 (aligned with SOLR + Share images so that each havea a distinct port - it's hard to forward JMX / RMI otherwise due JVM having to know the public port you're exposing via Docker)
+# Various protocol ports: 10025 (inboundSMTP) / 10445,10137-10139 (CIFS/SMB) / 10021 FTP (active) / 11021-11031 FTP (passive)
+EXPOSE 8080 8081 8082 8083 5001 10445 10137 10138 10139 10025 10021 11021 11022 11023 11024 11025 11026 11027 11028 11029 11030 11031
 
 VOLUME ["/srv/alfresco/data", "/srv/alfresco/keystore", "/srv/alfresco/defaultArtifacts"]
 
 # Add common JDBC drivers
 # We need (temporary) wget support to download
+# (We could just as easily have used ADD, but since we need to unzip the MySQL download and want to avoid two additional layers, we do this via a single RUN)
 RUN export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get update -q \
 	&& apt-get upgrade -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
@@ -44,14 +49,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # add prepared files that would be too awkward to handle via RUN / sed
-COPY alfresco-global.properties dev-log4j.properties alfresco-logrotate.d initAlfresco.sh prepareWarFiles.js /tmp/
+ADD ["alfresco-logrotate.d", "initAlfresco.sh", "prepareWarFiles.js", "shared-classes" "/tmp/"]
 
 # apply our Alfresco Repository default configurations
 RUN mv /tmp/alfresco-logrotate.d /etc/logrotate.d/alfresco \
-	&& mkdir -p /var/lib/tomcat7/shared/classes/alfresco/extension \
-	&& mv /tmp/dev-log4j.properties /var/lib/tomcat7/shared/classes/alfresco/extension/ \
 	&& touch /var/lib/tomcat7/logs/.alfresco-logrotate-dummy \
-	&& mv /tmp/alfresco-global.properties /var/lib/tomcat7/shared/classes/ \
+	&& mv /tmp/shared-classes/* /var/lib/tomcat7/shared/classes/ \
+	&& rm -rf /tmp/shared-classes \
 	&& mv /tmp/prepareWarFiles.js /var/lib/tomcat7/ \
 	&& mv /tmp/initAlfresco.sh /etc/my_init.d/50_initAlfresco.sh \
 	&& chmod +x /etc/my_init.d/50_initAlfresco.sh

@@ -4,12 +4,12 @@ LABEL vendor="Acosix GmbH" \
 	  de.acosix.version="0.0.1-SNAPSHOT" \
 	  de.acosix.is-beta="" \
 	  de.acosix.is-production="" \
-	  de.acosix.release-date="2017-06-25" \
+	  de.acosix.release-date="2017-08-13" \
 	  de.acosix.maintainer="axel.faust@acosix.de"
 
 ENV MAVEN_REQUIRED_ARTIFACTS= \
-	ALFRESCO_PLATFORM_VERSION=5.2.f \
-	ALFRESCO_SHARE_VERSION=5.2.e \
+	ALFRESCO_PLATFORM_VERSION=5.2.g \
+	ALFRESCO_SHARE_VERSION=5.2.g \
 	MAVEN_ACTIVE_REPOSITORIES=acosix,alfresco,alfresco_ee,central,ossrh \
 	MAVEN_REPOSITORIES_central_URL=https://repo1.maven.org/maven2 \
 	MAVEN_REPOSITORIES_alfresco_URL=https://artifacts.alfresco.com/nexus/content/groups/public \

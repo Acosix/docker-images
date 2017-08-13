@@ -26,21 +26,8 @@ EXPOSE 8080 8081 8082 8083 5001
 
 VOLUME ["/srv/alfresco/data", "/srv/alfresco/keystore", "/srv/alfresco/defaultArtifacts"]
 
-# add prepared files that would be too awkward to handle via RUN / sed
-COPY alfresco-global.properties dev-log4j.properties alfresco-logrotate.d initAlfresco.sh prepareWarFiles.js /tmp/
-
-# apply our Alfresco Repository default configurations
-RUN mv /tmp/alfresco-logrotate.d /etc/logrotate.d/alfresco \
-	&& mkdir -p /var/lib/tomcat7/shared/classes/alfresco/extension \
-	&& mv /tmp/dev-log4j.properties /var/lib/tomcat7/shared/classes/alfresco/extension/ \
-	&& touch /var/lib/tomcat7/logs/.alfresco-logrotate-dummy \
-	&& mv /tmp/alfresco-global.properties /var/lib/tomcat7/shared/classes/ \
-	&& mv /tmp/prepareWarFiles.js /var/lib/tomcat7/ \
-	&& mv /tmp/initAlfresco.sh /etc/my_init.d/50_initAlfresco.sh \
-	&& chmod +x /etc/my_init.d/50_initAlfresco.sh
-
 # Add common JDBC drivers
-# We need (temporary) wget/unzip support to download+unpack
+# We need (temporary) wget support to download
 RUN export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get update -q \
 	&& apt-get upgrade -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
@@ -55,3 +42,16 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		wget \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# add prepared files that would be too awkward to handle via RUN / sed
+COPY alfresco-global.properties dev-log4j.properties alfresco-logrotate.d initAlfresco.sh prepareWarFiles.js /tmp/
+
+# apply our Alfresco Repository default configurations
+RUN mv /tmp/alfresco-logrotate.d /etc/logrotate.d/alfresco \
+	&& mkdir -p /var/lib/tomcat7/shared/classes/alfresco/extension \
+	&& mv /tmp/dev-log4j.properties /var/lib/tomcat7/shared/classes/alfresco/extension/ \
+	&& touch /var/lib/tomcat7/logs/.alfresco-logrotate-dummy \
+	&& mv /tmp/alfresco-global.properties /var/lib/tomcat7/shared/classes/ \
+	&& mv /tmp/prepareWarFiles.js /var/lib/tomcat7/ \
+	&& mv /tmp/initAlfresco.sh /etc/my_init.d/50_initAlfresco.sh \
+	&& chmod +x /etc/my_init.d/50_initAlfresco.sh

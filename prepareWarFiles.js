@@ -289,7 +289,7 @@ function downloadArtifact(artifactDescriptor, repositoryDescriptors)
 				{
 					snapshotVersion = determineSnapshotVersion(expectedUrl, repositoryDescriptor);
 
-					print('Artifact defines SNAPSHOT-version - determined timestamp-based snapshot version ' + snapshotVersion + ' for download from ' repositoryDescriptor.id);
+					print('Artifact defines SNAPSHOT-version - determined timestamp-based snapshot version ' + snapshotVersion + ' for download from ' + repositoryDescriptor.id);
 				}
 
 				expectedUrl += artifactDescriptor.artifactId;

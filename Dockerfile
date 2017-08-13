@@ -4,7 +4,7 @@ LABEL vendor="Acosix GmbH" \
 	  de.acosix.version="0.0.1-SNAPSHOT" \
 	  de.acosix.is-beta="" \
 	  de.acosix.is-production="" \
-	  de.acosix.release-date="2017-06-29" \
+	  de.acosix.release-date="2017-08-13" \
 	  de.acosix.maintainer="axel.faust@acosix.de"
 
 ENV MAVEN_REQUIRED_ARTIFACTS= \

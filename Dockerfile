@@ -49,13 +49,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # add prepared files that would be too awkward to handle via RUN / sed
-ADD ["alfresco-logrotate.d", "initAlfresco.sh", "prepareWarFiles.js", "shared-classes" "/tmp/"]
+COPY alfresco-logrotate.d initAlfresco.sh prepareWarFiles.js shared-classes /tmp/
 
 # apply our Alfresco Repository default configurations
 RUN mv /tmp/alfresco-logrotate.d /etc/logrotate.d/alfresco \
 	&& touch /var/lib/tomcat7/logs/.alfresco-logrotate-dummy \
-	&& mv /tmp/shared-classes/* /var/lib/tomcat7/shared/classes/ \
-	&& rm -rf /tmp/shared-classes \
+	&& mv /tmp/alfresco /var/lib/tomcat7/shared/classes/ \
+	&& mv /tmp/alfresco-global.properties /var/lib/tomcat7/shared/classes/ \
 	&& mv /tmp/prepareWarFiles.js /var/lib/tomcat7/ \
 	&& mv /tmp/initAlfresco.sh /etc/my_init.d/50_initAlfresco.sh \
 	&& chmod +x /etc/my_init.d/50_initAlfresco.sh

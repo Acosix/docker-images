@@ -30,7 +30,7 @@ then
 		if [ -f /etc/apache2/sites-available/host.conf ]
 		then
 			mv /etc/apache2/sites-available/host.conf /etc/apache2/sites-available/${PUBLIC_HOST}.conf
-		elif [[ -s "${BASE_SAMPLE_HOST}" && -f "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.conf.sample" ]]
+		elif [[ -n "${BASE_SAMPLE_HOST}" && -f "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.conf.sample" ]]
 		then
 			cp "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.conf.sample" /etc/apache2/sites-available/${PUBLIC_HOST}.conf
 		elif [ -f /etc/apache2/sites-available/host.conf.sample ]
@@ -44,7 +44,7 @@ then
 		if [ -f /etc/apache2/sites-available/host.ssl.conf ]
 		then
 			mv /etc/apache2/sites-available/host.ssl.conf /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
-		elif [[ -s "${BASE_SAMPLE_HOST}" && -f "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.ssl.conf.sample" ]]
+		elif [[ -n "${BASE_SAMPLE_HOST}" && -f "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.ssl.conf.sample" ]]
 		then
 			cp "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.ssl.conf.sample" /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
 		elif [ -f /etc/apache2/sites-available/host.ssl.conf.sample ]

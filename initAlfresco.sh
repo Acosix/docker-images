@@ -254,7 +254,7 @@ then
 		echo "Initialising keystore from default"
 		unzip /var/lib/tomcat7/webapps/alfresco.war WEB-INF/lib/alfresco-repository-*.jar -d /tmp/alfresco
 		REPO_JAR=$(ls -A /tmp/alfresco/WEB-INF/lib/alfresco-repository-*.jar)
-		unzip "/tmp/alfresco/WEB-INF/lib/${REPO_JAR}" alfresco/keystore/* -d /tmp/alfresco-repo
+		unzip "${REPO_JAR}" alfresco/keystore/* -d /tmp/alfresco-repo
 		cp /tmp/alfresco-repo/alfresco/keystore/* /srv/alfresco/keystore/
 		rm -rf /tmp/alfresco /tmp/alfresco-repo
 	fi

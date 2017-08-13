@@ -43,6 +43,7 @@ INIT_KEYSTORE_FROM_DEFAULT=${INIT_KEYSTORE_FROM_DEFAULT:=true}
 
 if [ ! -f '/var/lib/tomcat7/.alfrescoInitDone' ]
 then
+	echo "Starting Alfresco container initialisation"
 	if [ ! -d '/srv/alfresco/data' ]
 	then
 		echo "Data directory has not been provided / mounted"
@@ -68,6 +69,7 @@ then
 		then
 			DB_PORT=5432
 		fi
+		echo "Setting up to use PostgreSQL on port ${DB_PORT}"
 	elif [[ $MYSQL_ENABLED == true ]]
 	then
 		if [[ $DB2_ENABLED == true || $MSSQL_ENABLED == true || $ORACLE_ENABLED == true ]]
@@ -80,6 +82,7 @@ then
 		then
 			DB_PORT=3006
 		fi
+		echo "Setting up to use MySQL on port ${DB_PORT}"
 	elif [[ $DB2_ENABLED == true ]]
 	then
 		if [[ $MSSQL_ENABLED == true || $ORACLE_ENABLED == true ]]
@@ -92,6 +95,7 @@ then
 		then
 			DB_PORT=50000
 		fi
+		echo "Setting up to use DB2 on port ${DB_PORT}"
 	elif [[ $MSSQL_ENABLED == true ]]
 	then
 		if [[ $ORACLE_ENABLED == true ]]
@@ -104,6 +108,7 @@ then
 		then
 			DB_PORT=1433
 		fi
+		echo "Setting up to use MS SQL on port ${DB_PORT}"
 	elif [[ $ORACLE_ENABLED == true ]]
 	then
 		DB_ACT_KEY="#useOracle#"
@@ -111,6 +116,7 @@ then
 		then
 			DB_PORT=1521
 		fi
+		echo "Setting up to use Oracle on port ${DB_PORT}"
 	else
 		echo "Type of database to use has not been configured"
         exit 1
@@ -156,6 +162,7 @@ then
 	sed -i "s/%PROXY_NAME%/${PROXY_NAME}/g" /var/lib/tomcat7/shared/classes/alfresco-global.properties
 	sed -i "s/%SHARE_PROXY_NAME%/${SHARE_PROXY_NAME}/g" /var/lib/tomcat7/shared/classes/alfresco-global.properties
 
+	echo "Prcessing environment variables for alfresco-global.properties and dev-log4j.properties"
 	CUSTOM_APPENDER_LIST='';
 
 	# otherwise for will also cut on whitespace
@@ -230,13 +237,13 @@ then
 
 	if [ ! -f '/var/lib/tomcat7/webapps/alfresco.war' ]
 	then
+		echo "Preparing Repository WARs (including modules)"
 		if [[ -d '/srv/alfresco/defaultArtifacts' ]]
 		then
 			echo "Using default artifacts: $(ls -A /srv/alfresco/defaultArtifacts)"
 			# in case folder is empty we have to suppress error code
 			cp /srv/alfresco/defaultArtifacts/* /tmp/ 2>/dev/null || :
 		fi
-		echo "Preparing Repository WARs (including modules)"
 		jjs -scripting /var/lib/tomcat7/prepareWarFiles.js -- /tmp
 		mv /tmp/*.war /var/lib/tomcat7/webapps/
 		rm -f /tmp/*.jar /tmp/*.amp /tmp/*.war*
@@ -287,5 +294,6 @@ then
 	sed -i "s/%PROXY_PORT_RAW%/${PROXY_PORT_RAW}/" /etc/tomcat7/server.xml
 	sed -i "s/%PROXY_SSL_PORT_RAW%/${PROXY_SSL_PORT_RAW}/" /etc/tomcat7/server.xml
 
+	echo "Completed Alfresco container initialisation"
 	touch /var/lib/tomcat7/.alfrescoInitDone
 fi

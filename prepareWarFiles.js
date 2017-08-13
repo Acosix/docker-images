@@ -172,7 +172,7 @@ function tryDownload(url, user, password)
 		fileName = url.substring(url.lastIndexOf('/') + 1);
 		resultFile = $ARG.length > 0 ? new java.io.File(new java.io.File($ARG[0]), fileName) : new java.io.File(fileName);
 		
-		if (!resultFile.exists() || envOr('MAVEN_OVERRIDE_EXISTING_FILES', 'false') === 'true')
+		if (!resultFile.exists() || resultFile.length() === 0 || envOr('MAVEN_OVERRIDE_EXISTING_FILES', 'false') === 'true')
 		{
 			is = con.inputStream;
 			os = new java.io.FileOutputStream(resultFile, false);
@@ -189,18 +189,18 @@ function tryDownload(url, user, password)
 				// log every ~5 MiB
 				if (totalBytesRead % (5 * 128 * 8192) < 8192)
 				{
-					print('Download in progress - ' + totalBytesRead + ' bytes transferred');
+					print('Download of ' + fileName + ' in progress - ' + totalBytesRead + ' bytes transferred');
 				}
 			}
 			
 			os.close();
 			is.close();
 			
-			print('Download completed - ' + totalBytesRead + ' bytes transferred');
+			print('Download of ' + fileName + ' completed - ' + totalBytesRead + ' bytes transferred');
 		}
 		else
 		{
-			print('File already exists locally and override has not been requested via maven.overrideExistingFiles');
+			print('File ' + fileName + ' already exists locally and override has not been requested via maven.overrideExistingFiles');
 		}
 	}
 	catch (e)
@@ -230,7 +230,7 @@ function tryDownload(url, user, password)
 
 function determineSnapshotVersion(baseUrl, repositoryDescriptor)
 {
-	var metadataFile, metadata, matches, timestamp, buildNumber;
+	var metadataFile, metadata, matches, timestamp, buildNumber, snapshotVersion, metadataAltFile;
 
 	try
 	{
@@ -246,19 +246,34 @@ function determineSnapshotVersion(baseUrl, repositoryDescriptor)
 			if (matches)
 			{
 				buildNumber = matches[1];
-				return timestamp + '-' + buildNumber;
+				snapshotVersion = timestamp + '-' + buildNumber;
 			}
 		}
 
-		metadataFile.delete();
+		if (!metadataFile.delete())
+		{
+			print('maven-metadata.xml could not be cleaned up - renaming to avoid re-use for other snapshot version determinations');
+
+			metadataAltFile = new java.io.File(metadataFile.parent, java.util.UUID.randomUUID().toString() + '.xml');
+			metadataFile.renameTo(metadataAltFile);
+			metadataAltFile.deleteOnExit();
+		}
 	}
 	catch(e)
 	{
 		if (metadataFile !== undefined)
 		{
-			metadataFile.delete();
+			if (!metadataFile.delete())
+			{
+				print('maven-metadata.xml could not be cleaned up - renaming to avoid re-use for other snapshot version determinations');
+
+				metadataAltFile = new java.io.File(metadataFile.parent, java.util.UUID.randomUUID().toString() + '.xml');
+				metadataFile.renameTo(metadataAltFile);
+				metadataAltFile.deleteOnExit();
+			}
 		}
 	}
+	return snapshotVersion;
 }
 
 function downloadArtifact(artifactDescriptor, repositoryDescriptors)
@@ -288,6 +303,8 @@ function downloadArtifact(artifactDescriptor, repositoryDescriptors)
 				if (/-SNAPSHOT$/.test(artifactDescriptor.version))
 				{
 					snapshotVersion = determineSnapshotVersion(expectedUrl, repositoryDescriptor);
+
+					print('Artifact defines SNAPSHOT-version - determined timestamp-based snapshot version ' + snapshotVersion + ' for :download from ' + repositoryDescriptor.id);
 				}
 
 				expectedUrl += artifactDescriptor.artifactId;

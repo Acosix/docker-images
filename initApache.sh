@@ -8,6 +8,8 @@ LETSENCRYPT_MAIL=${LETSENCRYPT_MAIL:=webmaster@host.example.com}
 
 REGENERATE_PREDEFINED_DHPARAMS=${REGENERATE_PREDEFINED_DHPARAMS:=false}
 
+BASE_SAMPLE_HOST=${BASE_SAMPLE_HOST:""}
+
 ENABLE_SSL=${ENABLE_SSL:=true}
 FORCE_SSL=${FORCE_SSL:=true}
 
@@ -28,6 +30,9 @@ then
 		if [ -f /etc/apache2/sites-available/host.conf ]
 		then
 			mv /etc/apache2/sites-available/host.conf /etc/apache2/sites-available/${PUBLIC_HOST}.conf
+		elif [[ -s "${BASE_SAMPLE_HOST}" && -f "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.conf.sample" ]]
+		then
+			cp "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.conf.sample" /etc/apache2/sites-available/${PUBLIC_HOST}.conf
 		elif [ -f /etc/apache2/sites-available/host.conf.sample ]
 		then
 			cp /etc/apache2/sites-available/host.conf.sample /etc/apache2/sites-available/${PUBLIC_HOST}.conf
@@ -39,6 +44,9 @@ then
 		if [ -f /etc/apache2/sites-available/host.ssl.conf ]
 		then
 			mv /etc/apache2/sites-available/host.ssl.conf /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
+		elif [[ -s "${BASE_SAMPLE_HOST}" && -f "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.ssl.conf.sample" ]]
+		then
+			cp "/etc/apache2/sites-available/${BASE_SAMPLE_HOST}.host.ssl.conf.sample" /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
 		elif [ -f /etc/apache2/sites-available/host.ssl.conf.sample ]
 		then
 			cp /etc/apache2/sites-available/host.ssl.conf.sample /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
@@ -51,7 +59,7 @@ then
 		sed -i "s/%WEBMASTER_ADDRESS%/${WEBMASTER_MAIL}/g" /etc/apache2/sites-available/${PUBLIC_HOST}.conf
 	fi
 
-	if [ -f "/etc/apache2/sites-available/${PUBLIC_HOST}.conf" ]
+	if [ -f "/etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf" ]
 	then
 		sed -i "s/%HOST%/${PUBLIC_HOST}/g" /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf
 		sed -i "s/%WEBMASTER_ADDRESS%/${WEBMASTER_MAIL}/g" /etc/apache2/sites-available/${PUBLIC_HOST}.ssl.conf

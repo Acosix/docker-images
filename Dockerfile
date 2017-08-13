@@ -4,7 +4,7 @@ LABEL vendor="Acosix GmbH" \
 	  de.acosix.version="0.0.1-SNAPSHOT" \
 	  de.acosix.is-beta="" \
 	  de.acosix.is-production="" \
-	  de.acosix.release-date="2017-08-05" \
+	  de.acosix.release-date="2017-08-13" \
 	  de.acosix.maintainer="axel.faust@acosix.de"
 
 EXPOSE 80 443
@@ -27,7 +27,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 RUN openssl dhparam -dsaparam -out /etc/ssl/certs/dhparam.pem 4096
 
 # add prepared files that would be too awkward to handle via RUN / sed
-COPY initApache.sh startApache.sh /tmp/
+# also include common sample host files for simple pre-selection via an ENV variable
+COPY initApache.sh startApache.sh *.conf.sample /tmp/
 
 RUN	sed -i 's/SSLCipherSuite HIGH:!aNULL/SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4/' /etc/apache2/mods-available/ssl.conf \
 	&& sed -i 's/#SSLHonorCipherOrder on/SSLHonorCipherOrder on/' /etc/apache2/mods-available/ssl.conf \
@@ -40,6 +41,8 @@ RUN	sed -i 's/SSLCipherSuite HIGH:!aNULL/SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:
 	&& chmod +x /etc/my_init.d/20_initApache.sh \
 	&& mkdir /etc/service/apache2 \
 	&& mv /tmp/startApache.sh /etc/service/apache2/run \
+	&& mv /tmp/*.host.conf.sample /etc/apache2/sites-available/ \
+	&& mv /tmp/*.host.*.conf.sample /etc/apache2/sites-available/ \
 	&& chmod +x /etc/service/apache2/run
 
 RUN a2enmod \

@@ -172,6 +172,8 @@ then
 			if [[ $ACCESS_REPOSITORY_VIA_SSL == true ]]
 			then
 				sed -i "s/secureComms=.*/secureComms=https/" "/srv/alfresco-solr4/solrhome/${core}/conf/solrcore.properties"
+			else
+				sed -i "s/secureComms=.*/secureComms=none/" "/srv/alfresco-solr4/solrhome/${core}/conf/solrcore.properties"
 			fi
 
 			if [[ ${core} == 'alfresco' ]]

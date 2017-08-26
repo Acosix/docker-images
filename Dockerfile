@@ -27,7 +27,10 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # add prepared files that would be too awkward to handle via RUN / sed
-COPY shared-classes /tmp/
+COPY shared-classes startLibreOffice.sh /tmp/
 
 RUN cp -r /tmp/alfresco/* /var/lib/tomcat7/shared/classes/alfresco/ \
-	&& rm -rf /tmp/alfresco
+	&& rm -rf /tmp/alfresco \
+	&& mkdir /etc/service/libreoffice \
+	&& mv /tmp/startLibreOffice.sh /etc/service/libreoffice/run \
+	&& chmod +x /etc/service/libreoffice/run

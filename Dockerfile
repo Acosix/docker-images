@@ -29,5 +29,5 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 # add prepared files that would be too awkward to handle via RUN / sed
 COPY shared-classes /tmp/
 
-RUN cp -r /tmp/alfresco /var/lib/tomcat7/shared/classes/alfresco \
+RUN cp -r /tmp/alfresco/* /var/lib/tomcat7/shared/classes/alfresco/ \
 	&& rm -rf /tmp/alfresco

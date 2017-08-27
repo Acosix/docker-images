@@ -3,6 +3,7 @@
 set -e
 
 DEBUG=${DEBUG:=false}
+ENABLED_PROXY=${ENABLE_PROXY:=true}
 PROXY_NAME=${PROXY_NAME:=localhost}
 PROXY_PORT=${PROXY_PORT:=80}
 ENABLE_SSL_PROXY=${ENABLE_SSL_PROXY:=false}
@@ -52,16 +53,22 @@ then
 	JAVA_OPTS=$(echo "${JAVA_OPTS}" | sed -r "s/(\/)/\\\\\1/g")
 
 	sed -i "s/%JAVA_OPTS%/${JAVA_OPTS}/" /etc/default/tomcat7
-	sed -i "s/%PROXY_NAME%/${PROXY_NAME}/g" /etc/tomcat7/server.xml
-	sed -i "s/%PROXY_PORT%/${PROXY_PORT}/g" /etc/tomcat7/server.xml
-	sed -i "s/%PROXY_SSL_PORT%/${PROXY_SSL_PORT}/g" /etc/tomcat7/server.xml
 	sed -i "s/%MIN_CONNECTOR_THREADS%/${MIN_CON_THREADS}/g" /etc/tomcat7/server.xml
 	sed -i "s/%MAX_CONNECTOR_THREADS%/${MAX_CON_THREADS}/g" /etc/tomcat7/server.xml
-	
+
 	if [[ $ENABLE_SSL_PROXY == true ]]
 	then
-		sed -i "s/<!--%SSL_PROXY%//g" /etc/tomcat7/server.xml
-		sed -i "s/%SSL_PROXY%-->//g" /etc/tomcat7/server.xml
+		sed -i "s/%PROXY_NAME%/${PROXY_NAME}/g" /etc/tomcat7/server.xml
+		sed -i "s/%PROXY_PORT%/${PROXY_PORT}/g" /etc/tomcat7/server.xml
+		sed -i "s/%PROXY_SSL_PORT%/${PROXY_SSL_PORT}/g" /etc/tomcat7/server.xml
+
+		if [[ $ENABLE_SSL_PROXY == true ]]
+		then
+			sed -i "s/<!--%SSL_PROXY%//g" /etc/tomcat7/server.xml
+			sed -i "s/%SSL_PROXY%-->//g" /etc/tomcat7/server.xml
+		fi
+	else
+		sed -i 's/[\w]+="%PROXY_[^%]+%"//' /etc/tomcat7/server.xml
 	fi
 	
 	touch /var/lib/tomcat7/.tomcatInitDone

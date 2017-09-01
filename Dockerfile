@@ -25,8 +25,8 @@ ENV MAVEN_REQUIRED_ARTIFACTS= \
 # Public HTTP ports for reverse-proxy: 8080 / 8081 (assumed secured via SSL)
 # Private HTTP ports for SOLR: 8082 / 8083 (active SSL)
 # JMX / RMI port: 5001 (aligned with SOLR + Share images so that each havea a distinct port - it's hard to forward JMX / RMI otherwise due JVM having to know the public port you're exposing via Docker)
-# Various protocol ports: 10025 (inboundSMTP) / 10445,10137-10139 (CIFS/SMB) / 10021 FTP (active) / 11021-11031 FTP (passive)
-EXPOSE 8080 8081 8082 8083 5001 10445 10137 10138 10139 10025 10021 11021 11022 11023 11024 11025 11026 11027 11028 11029 11030 11031
+# Various protocol ports: 10025 (inboundSMTP) / 10445,10137-10139 (CIFS/SMB) / 10021 FTP (active) / 11000-11099 FTP (passive)
+EXPOSE 8080 8081 8082 8083 5001 10445 10137-10139 10025 10021 11000-11099
 
 VOLUME ["/srv/alfresco/data", "/srv/alfresco/keystore", "/srv/alfresco/defaultArtifacts"]
 
